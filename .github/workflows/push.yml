@@ -1,6 +1,9 @@
 name: Build
 
-on: push
+on: 
+  push:
+    branches:
+      - 'master'
 
 jobs:
   build:
@@ -25,7 +28,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       
       - name: Build Python 3.8
-        use: docker/build-push-ation@v2
+        uses: docker/build-push-ation@v2
         with:
           context: .
           build-args: |
@@ -36,7 +39,7 @@ jobs:
           tags: lyralemos/python-gdal:py3.8-gdal3.0.4
       
       - name: Build Python 3.10
-        use: docker/build-push-ation@v2
+        uses: docker/build-push-ation@v2
         with:
           context: .
           build-args: |
