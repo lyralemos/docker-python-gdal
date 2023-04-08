@@ -11,19 +11,37 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-
-      - name: Build
-        run: make image
-
-      - name: Test
-        run: make test
-
-      - name: Lint
-        run: make lint
-
-      - name: Push
-        if: github.ref == 'refs/heads/master'
-        run: |
-          echo ${{ secrets.DOCKER_TOKEN }} | docker login -u andrejreznik --password-stdin
-
-          make push-image
+      
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+        
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      
+      - name: Build Python 3.8
+        use: docker/build-push-ation@v2
+        with:
+          context: .
+          build-args: |
+            GDAL_VERSION=3.0.4
+            BASE_IMAGE=python:3.8.16-slim-bullseye
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: lyralemos/python-gdal:py3.8-gdal3.0.4
+      
+      - name: Build Python 3.10
+        use: docker/build-push-ation@v2
+        with:
+          context: .
+          build-args: |
+            GDAL_VERSION=3.2.3
+            BASE_IMAGE=python:3.10.11-slim-bullseye
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: lyralemos/python-gdal:py3.10-gdal3.2.3,lyralemos/python-gdal:latest
